@@ -21,12 +21,9 @@ servers_collection = client.servers_collection
 consumer = KafkaConsumer("players","server-values",
     bootstrap_servers=[kafka_string],
     api_version=(0, 10, 1),
-    auto_offset_reset='earliest',
     enable_auto_commit=True,
     value_deserializer=lambda x: loads(x.decode('utf-8')))
 
-print("conn")
-print("connsumer created")
 for message in consumer:
     if message.topic == "players":
         print(f"Inserting {message.value['name']}")
