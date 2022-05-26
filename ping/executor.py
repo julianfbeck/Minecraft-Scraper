@@ -3,7 +3,10 @@ from json import dumps, loads
 import shlex
 from subprocess import Popen, PIPE
 from threading import Timer
+from multiprocessing import Process
 import os
+import uuid
+import threading
 kafka_string = os.environ.get('KAFKA_URL')
 if kafka_string is None:
     kafka_string = "localhost:9092"
@@ -27,11 +30,13 @@ def execute_ping(value):
     consumer = KafkaConsumer(
         'servers',
         bootstrap_servers=[kafka_string],
-        auto_offset_reset='earliest',
-        enable_auto_commit=True,
-        client_id="ping-executor"+str(value),
+        client_id=str(uuid.uuid4()),
         group_id='my-group',
-        api_version=(0, 10, 2),
+        auto_offset_reset='latest',
+        enable_auto_commit=True,
+        auto_commit_interval_ms =  5000,
+        max_poll_records = 100,
+        
         value_deserializer=lambda x: loads(x.decode('utf-8')))
     print("consumer created")
     for total_requests, message in enumerate(consumer):
@@ -39,9 +44,7 @@ def execute_ping(value):
         print(f"Request {total_requests} from executor {value} for {server}")
         run(f"python3 ping.py -p {server}", 2)
 
-execute_ping(1)
-# number of cores
-# thread_array = [threading.Thread(target=execute_ping, args=(i,)) for i in range(4)]
+thread_array = [threading.Thread(target=execute_ping, args=(i,)) for i in range(4)]
 
-# for thread in thread_array:
-#     thread.start()
+for thread in thread_array:
+    thread.start()
