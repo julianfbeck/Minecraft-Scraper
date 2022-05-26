@@ -8,6 +8,7 @@ kafka_string = os.environ.get('KAFKA_URL')
 if kafka_string is None:
     kafka_string = "localhost:9092"
 producer = KafkaProducer(bootstrap_servers=[kafka_string],
+                                api_version=(0, 10, 2),
                          value_serializer=lambda x: 
                          dumps(x).encode('utf-8'))
                     
@@ -52,9 +53,11 @@ def get_status(ip):
 
     factory = PingFactory()
     factory.connect(ip, 25565)
+    print("connection")
     reactor.run()
 
 if __name__ == "__main__":
+    print("Starting pinger")
     # get ip from args
     import sys
     import argparse

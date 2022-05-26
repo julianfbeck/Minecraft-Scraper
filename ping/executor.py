@@ -1,12 +1,8 @@
-from http import server
-import logging
-import threading
-from kafka import KafkaProducer, KafkaConsumer
+from kafka import KafkaConsumer
 from json import dumps, loads
 import shlex
 from subprocess import Popen, PIPE
 from threading import Timer
-import concurrent.futures
 import os
 kafka_string = os.environ.get('KAFKA_URL')
 if kafka_string is None:
@@ -35,14 +31,17 @@ def execute_ping(value):
         enable_auto_commit=True,
         client_id="ping-executor"+str(value),
         group_id='my-group',
+        api_version=(0, 10, 2),
         value_deserializer=lambda x: loads(x.decode('utf-8')))
+    print("consumer created")
     for total_requests, message in enumerate(consumer):
         server = message.value.get("server")
         print(f"Request {total_requests} from executor {value} for {server}")
         run(f"python3 ping.py -p {server}", 2)
 
+execute_ping(1)
 # number of cores
-thread_array = [threading.Thread(target=execute_ping, args=(i,)) for i in range(4)]
+# thread_array = [threading.Thread(target=execute_ping, args=(i,)) for i in range(4)]
 
-for thread in thread_array:
-    thread.start()
+# for thread in thread_array:
+#     thread.start()
