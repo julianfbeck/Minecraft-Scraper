@@ -46,12 +46,12 @@ services:
       - mongo-express
       - kafka
       - zookeeper
-  scanner:
-    build: ./ping
-    environment:
-      KAFKA_URL: kafka:9092
-    depends_on:
-      - mongo
-      - mongo-express
-      - kafka
-      - zookeeper
+  # scanner:
+  #   build: ./ping
+  #   environment:
+  #     KAFKA_URL: kafka:9092
+  #   depends_on:
+  #     - mongo
+  #     - mongo-express
+  #     - kafka
+  #     - zookeeper

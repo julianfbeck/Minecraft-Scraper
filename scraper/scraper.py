@@ -5,9 +5,12 @@ from kafka import KafkaProducer
 import random
 import masscan
 import uuid
+kafka_string = os.environ.get('KAFKA_URL')
+if kafka_string is None:
+    kafka_string = "localhost:9092"
 
 if __name__ == "__main__":
-    producer = KafkaProducer(bootstrap_servers=['localhost:9092'],
+    producer = KafkaProducer(bootstrap_servers=[kafka_string],
                         api_version=(0, 10, 2),
                          value_serializer=lambda x: 
                          dumps(x).encode('utf-8'))
