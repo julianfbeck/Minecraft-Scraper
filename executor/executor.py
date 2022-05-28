@@ -10,8 +10,7 @@ import uuid
 import threading
 import time
 topic = 'servers'
-bootstrap_servers = 'localhost:9092'
-number_of_workers = 3
+number_of_workers = 5
 kafka_string = os.environ.get('KAFKA_URL')
 if kafka_string is None:
     kafka_string = "localhost:9092"
@@ -33,13 +32,16 @@ def run(cmd, timeout_sec):
 
 def setup_partitions():
     consumer = KafkaConsumer(
-        topic, bootstrap_servers=bootstrap_servers,  group_id='consumer', auto_offset_reset='latest', api_version=(0, 10, 2), value_deserializer=lambda x: loads(x.decode('utf-8')))
-
+        topic, bootstrap_servers=kafka_string,  group_id='consumer', auto_offset_reset='latest', api_version=(0, 10, 2), value_deserializer=lambda x: loads(x.decode('utf-8')))
+    topics = consumer.topics()
+    if not topics: 
+        exit(0)
+    print("topics:", topics)
     partitions = consumer.partitions_for_topic(topic)
     if not partitions or len(partitions) != number_of_workers:
         print("Creating partitions for number of workers:", number_of_workers)
         # create partitions
-        admin_client = KafkaAdminClient(bootstrap_servers=bootstrap_servers, api_version=(0, 10, 2))
+        admin_client = KafkaAdminClient(bootstrap_servers=kafka_string, api_version=(0, 10, 2))
         topics = consumer.topics()
         ## check if topic exists
         if topic in topics:
@@ -51,7 +53,7 @@ def setup_partitions():
 def execute_ping(value):
     consumer = KafkaConsumer(
         topic,
-        bootstrap_servers=[bootstrap_servers],
+        bootstrap_servers=kafka_string,
         api_version=(0, 10, 2),
         client_id=str(uuid.uuid4()),
         group_id='my-group',

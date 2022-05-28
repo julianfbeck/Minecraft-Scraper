@@ -31,8 +31,11 @@ consumer = KafkaConsumer("players","server-values",
     max_poll_records = 100,
     value_deserializer=lambda x: loads(x.decode('utf-8')))
 print("consumer created")
+topics = consumer.topics()
 
-
+if not topics: 
+    exit(0)
+print("topics:", topics)
 
 
 for message in consumer:

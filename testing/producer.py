@@ -5,7 +5,7 @@ from kafka import KafkaAdminClient
 from kafka.admin import NewPartitions
 
 topic = 'kafka'
-bootstrap_servers = 'localhost:9092'
+bootstrap_servers = 'localhost:9093'
 
 # admin_client = KafkaAdminClient(bootstrap_servers=bootstrap_servers)
 # topic_partitions = {}
@@ -18,8 +18,8 @@ producer = KafkaProducer(bootstrap_servers=bootstrap_servers,
                         api_version=(0, 10, 2),
                          value_serializer=lambda x: 
                          dumps(x).encode('utf-8'))
-producer.send("server-values", {'ip': 'John', 'age': 30})
-
+# producer.send("server-values", {'ip': 'John', 'age': 30})
+producer.send("servers", {'server': 'play.pokesaga.org'})
 producer.flush()
 
 # for _ in range(100, 20000):
