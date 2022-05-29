@@ -54,7 +54,27 @@ services:
       - mongo-express
       - kafka-0
       - zookeeper
-  executor:
+  executor-0:
+    build: ./executor
+    restart: always
+    environment:
+      KAFKA_URL: kafka-0:29094
+    depends_on:
+      - mongo
+      - mongo-express
+      - kafka-0
+      - zookeeper
+  executor-1:
+    build: ./executor
+    restart: always
+    environment:
+      KAFKA_URL: kafka-0:29094
+    depends_on:
+      - mongo
+      - mongo-express
+      - kafka-0
+      - zookeeper
+  executor-2:
     build: ./executor
     restart: always
     environment:

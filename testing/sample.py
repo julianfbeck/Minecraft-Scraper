@@ -6,7 +6,7 @@ import os
 from kafka import KafkaProducer
 kafka_string = os.environ.get('KAFKA_URL')
 if kafka_string is None:
-    kafka_string = "localhost:9092"
+    kafka_string = "localhost:9093"
 
 
 
@@ -27,7 +27,7 @@ if __name__ == "__main__":
                         value_serializer=lambda x: 
                         dumps(x).encode('utf-8'))
 
-    for path in run("sudo masscan -p25565 0.0.0.0/0 --max-rate 100 --exclude 255.255.255.255"):
+    for path in run("sudo masscan -p25565 0.0.0.0/0 --max-rate 5000 --exclude 255.255.255.255"):
         output = path.decode("utf-8")
         ips = re.findall( r'[0-9]+(?:\.[0-9]+){3}', output)
         for ip in ips:

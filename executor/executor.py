@@ -10,7 +10,8 @@ import uuid
 import threading
 import time
 topic = 'servers'
-number_of_workers = 5
+number_of_workers = 12
+number_of_partitions = number_of_workers*3
 kafka_string = os.environ.get('KAFKA_URL')
 if kafka_string is None:
     kafka_string = "localhost:9092"
@@ -38,8 +39,8 @@ def setup_partitions():
         exit(0)
     print("topics:", topics)
     partitions = consumer.partitions_for_topic(topic)
-    if not partitions or len(partitions) != number_of_workers:
-        print("Creating partitions for number of workers:", number_of_workers)
+    if not partitions or len(partitions) != number_of_partitions:
+        print("Creating partitions for number of workers:", number_of_partitions)
         # create partitions
         admin_client = KafkaAdminClient(bootstrap_servers=kafka_string, api_version=(0, 10, 2))
         topics = consumer.topics()
@@ -47,7 +48,7 @@ def setup_partitions():
         if topic in topics:
             res =  admin_client.delete_topics([topic])
             time.sleep(1)
-        admin_client.create_topics([NewTopic(topic, number_of_workers, 1)])
+        admin_client.create_topics([NewTopic(topic, number_of_partitions, 1)])
         time.sleep(1)
 
 def execute_ping(value):
