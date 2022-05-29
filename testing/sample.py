@@ -3,12 +3,20 @@ import re
 from subprocess import Popen, PIPE
 import uuid
 import os
-from kafka import KafkaProducer
+from kafka import KafkaProducer, KafkaConsumer
+
+
+
 kafka_string = os.environ.get('KAFKA_URL')
 if kafka_string is None:
     kafka_string = "localhost:9093"
 
 
+def testConnection():
+    consumer = KafkaConsumer(
+        "servers", bootstrap_servers=[kafka_string],  group_id='consumer', auto_offset_reset='latest', value_deserializer=lambda x: loads(x.decode('utf-8')))
+    if not consumer.topics():
+        exit(0)
 
 def run(command):
     process = Popen(command, stdout=PIPE, shell=True)
@@ -22,6 +30,7 @@ def run(command):
 
 
 if __name__ == "__main__":
+    testConnection()
     producer = KafkaProducer(bootstrap_servers=[kafka_string],
                         api_version=(0, 10, 2),
                         value_serializer=lambda x: 

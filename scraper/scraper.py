@@ -1,51 +1,45 @@
-import itertools
-from time import sleep
 from json import dumps
-from kafka import KafkaProducer
-import random
-import masscan
+import re
+from subprocess import Popen, PIPE
 import uuid
+import os
+from kafka import KafkaProducer, KafkaConsumer
+
+
+
 kafka_string = os.environ.get('KAFKA_URL')
 if kafka_string is None:
-    kafka_string = "localhost:9092"
+    kafka_string = "localhost:9093"
+
+
+def testConnection():
+    consumer = KafkaConsumer(
+        "servers", bootstrap_servers=[kafka_string],  group_id='consumer', auto_offset_reset='latest', value_deserializer=lambda x: loads(x.decode('utf-8')))
+    if not consumer.topics():
+        exit(0)
+
+def run(command):
+    process = Popen(command, stdout=PIPE, shell=True)
+    while True:
+        line = process.stdout.readline().rstrip()
+        if not line:
+            break
+        yield line
+    process.kill()
+
+
 
 if __name__ == "__main__":
+    testConnection()
     producer = KafkaProducer(bootstrap_servers=[kafka_string],
                         api_version=(0, 10, 2),
-                         value_serializer=lambda x: 
-                         dumps(x).encode('utf-8'))
-    # for _ in range(10):
-    #     key = str(uuid.uuid4())
-    #     # to byte
-    #     print(key)
-    #     producer.send('servers', key=str.encode(str(uuid.uuid4())) ,value={"server": "test"})
-    #     producer.send('servers', value={"server": "test"})
-    #     producer.flush()
-    A = list(range(1, 0xff))
-    B = list(range(1, 0xff))
-    random.shuffle(A)
-    random.shuffle(B)
-    ip_ranges = []
+                        value_serializer=lambda x: 
+                        dumps(x).encode('utf-8'))
 
-    for a, b in itertools.product(A, B):
-        ip_range = f"{a}.{b}.0.0/16"
-        ip_ranges.append(ip_range)
-
-    while True:
-        random.shuffle(ip_ranges)
-        for ip_range in ip_ranges:
-            print(ip_range)
-            try:
-                mas = masscan.PortScanner()
-                mas.scan(ip_range, ports='25565', arguments='--max-rate 10000')
-                print("there are results")
-                for ip in mas.scan_result['scan']:
-                    host = mas.scan_result['scan'][ip]
-                    if "tcp" in host and 25565 in host['tcp']:
-                        producer.send('servers', key=str.encode(str(uuid.uuid4())) ,value={"server": ip})
-                        producer.flush()
-            except Exception as e:
-                print("got ex ")
-                print(e)
-        print("Done")
-        
+    for path in run("sudo masscan -p25565 0.0.0.0/0 --max-rate 5000 --exclude 255.255.255.255"):
+        output = path.decode("utf-8")
+        ips = re.findall( r'[0-9]+(?:\.[0-9]+){3}', output)
+        for ip in ips:
+            print("Found ip:", ip)
+            producer.send('servers', key=str.encode(str(uuid.uuid4())) ,value={"server": ip})
+            producer.flush()
