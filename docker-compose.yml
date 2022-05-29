@@ -64,6 +64,7 @@ services:
       - mongo-express
       - kafka-0
       - zookeeper
+      - writer
   executor-1:
     build: ./executor
     restart: always
@@ -74,6 +75,7 @@ services:
       - mongo-express
       - kafka-0
       - zookeeper
+      - writer
   executor-2:
     build: ./executor
     restart: always
@@ -84,5 +86,18 @@ services:
       - mongo-express
       - kafka-0
       - zookeeper
+      - writer
+  scraper:
+    build: ./scraper
+    restart: always
+    environment:
+      KAFKA_URL: kafka-0:29094
+    depends_on:
+      - executor
+      - mongo
+      - mongo-express
+      - kafka-0
+      - zookeeper
+      - writer
 volumes:
   shared_database:

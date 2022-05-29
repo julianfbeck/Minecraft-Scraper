@@ -18,6 +18,7 @@ producer = KafkaProducer(bootstrap_servers=bootstrap_servers,
                         api_version=(0, 10, 2),
                          value_serializer=lambda x: 
                          dumps(x).encode('utf-8'))
+
 # producer.send("server-values", {'ip': 'John', 'age': 30})
 producer.send("servers", {'server': 'play.pokesaga.org'})
 producer.flush()

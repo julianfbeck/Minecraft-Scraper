@@ -14,7 +14,7 @@ if kafka_string is None:
 
 def testConnection():
     consumer = KafkaConsumer(
-        "servers", bootstrap_servers=[kafka_string],  group_id='consumer', auto_offset_reset='latest', value_deserializer=lambda x: loads(x.decode('utf-8')))
+        "servers", bootstrap_servers=[kafka_string],  group_id='consumer', auto_offset_reset='latest', api_version=(0, 10, 2))
     if not consumer.topics():
         exit(0)
 
@@ -36,7 +36,7 @@ if __name__ == "__main__":
                         value_serializer=lambda x: 
                         dumps(x).encode('utf-8'))
 
-    for path in run("sudo masscan -p25565 0.0.0.0/0 --max-rate 5000 --exclude 255.255.255.255"):
+    for path in run("masscan -p25565 0.0.0.0/0 --max-rate 5000 --exclude 255.255.255.255"):
         output = path.decode("utf-8")
         ips = re.findall( r'[0-9]+(?:\.[0-9]+){3}', output)
         for ip in ips:

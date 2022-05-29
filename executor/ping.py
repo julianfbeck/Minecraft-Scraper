@@ -27,10 +27,10 @@ def get_status(ip):
                 version = status["version"]["name"]
             if "favicon" in status:
                 status["favicon"] =""
+            if "modinfo" in status or "forgeData" in status:
+                modded = True         
             if "players" in status and "online" in status["players"]:
                 online = status["players"]["online"]
-            if "modinfo" in status or "forgeData" in status:
-                modded = True
                 if "sample" in status["players"]:
                     for player in status["players"]["sample"]:
                         player = {
@@ -42,7 +42,7 @@ def get_status(ip):
                         producer.flush()
                         players.append(player)
 
-            server = {"ip": ip, "text": text, "version": version, "online": online, "players": players, "status": status}
+            server = {"ip": ip, "text": text, "version": version, "online": online, modded: modded, "players": players, "status": status}
             print("server:", ip)
             producer.send("server-values", value=server)
             producer.flush()
