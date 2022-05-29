@@ -4,7 +4,7 @@ from subprocess import Popen, PIPE
 import uuid
 import os
 from kafka import KafkaProducer, KafkaConsumer
-
+import time
 
 
 kafka_string = os.environ.get('KAFKA_URL')
@@ -43,3 +43,6 @@ if __name__ == "__main__":
             print("Found ip:", ip)
             producer.send('servers', key=str.encode(str(uuid.uuid4())) ,value={"server": ip})
             producer.flush()
+    print("Finished")
+    while True:
+        time.sleep(1000)

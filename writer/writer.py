@@ -3,6 +3,9 @@ from json import  loads
 from pymongo import MongoClient
 import os
 import uuid
+import datetime
+
+
 #connection string based on env 
 connection_string = os.environ.get('MONGODB_URL')
 if connection_string is None:
@@ -39,9 +42,11 @@ print("topics:", topics)
 
 
 for message in consumer:
+    newObject = message.value
+    newObject["last_modified"] = datetime.datetime.now()
     if message.topic == "players":
         print(f"Inserting {message.value['name']}")
-        db.player_collection.insert_one(message.value)
+        db.player_collection.insert_one(newObject)
     if message.topic == "server-values":
         print(f"Inserting {message.value['ip']}")
-        db.servers_collection.update_one({"ip": message.value['ip']}, {"$set":message.value}, upsert=True)
+        db.servers_collection.update_one({"ip": message.value['ip']}, {"$set":newObject}, upsert=True)

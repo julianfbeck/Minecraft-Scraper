@@ -93,7 +93,9 @@ services:
     environment:
       KAFKA_URL: kafka-0:29094
     depends_on:
-      - executor
+      - executor-0
+      - executor-1
+      - executor-2
       - mongo
       - mongo-express
       - kafka-0

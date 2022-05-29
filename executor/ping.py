@@ -20,7 +20,7 @@ def get_status(ip):
             version = ""
             online = -1
             players = []
-            modded = True
+            modded = False 
             if "description" in status and "text" in status["description"]:
                 text = status["description"]["text"]
             if  "version" in status and "name" in status["version"]:
@@ -36,13 +36,18 @@ def get_status(ip):
                         player = {
                             "name": player.get("name", "-undefined"),
                             "uuid": player.get("id", "-undefined"),
-                            "server": ip
+                            "server": ip,
+                            "modded":modded,
+                            "version":version,
+                            "text": text
                         }
                         producer.send("players", value=player)
                         producer.flush()
-                        players.append(player)
-
-            server = {"ip": ip, "text": text, "version": version, "online": online, modded: modded, "players": players, "status": status}
+                        players.append({
+                            "name": player.get("name", "-undefined"),
+                            "uuid": player.get("id", "-undefined")}
+                        )
+            server = {"ip": ip, "text": text, "version": version, "online": online, "modded": modded, "players": players, "status": status}
             print("server:", ip)
             producer.send("server-values", value=server)
             producer.flush()
