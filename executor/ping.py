@@ -27,7 +27,7 @@ def get_status(ip):
                 version = status["version"]["name"]
             if "favicon" in status:
                 status["favicon"] =""
-            if "modinfo" in status or "forgeData" in status:
+            if "modinfo" in status or "forgeData" in status or "modpackData" in status:
                 modded = True         
             if "players" in status and "online" in status["players"]:
                 online = status["players"]["online"]
